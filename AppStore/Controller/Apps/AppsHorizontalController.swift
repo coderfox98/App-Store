@@ -8,9 +8,11 @@
 
 import UIKit
 
-class AppsHorizontalController : BaseListController, UICollectionViewDelegateFlowLayout {
+class AppsHorizontalController : HorizontalSnappingController, UICollectionViewDelegateFlowLayout {
     
     fileprivate let cellID = "cellID"
+    
+    var appGroup : AppGroup?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -18,16 +20,28 @@ class AppsHorizontalController : BaseListController, UICollectionViewDelegateFlo
         
         collectionView.register(AppsRowCell.self, forCellWithReuseIdentifier: cellID)
         
-        if let layout = collectionViewLayout as? UICollectionViewFlowLayout {
-            layout.scrollDirection = .horizontal
-        }
+        collectionView.contentInset = .init(top: 0, left: 16, bottom: 0, right: 16)
+        
+        
     }
     
+    var didSelectHandler : ((FeedResult) -> ())?
+    
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if let app = appGroup?.feed.results[indexPath.item] {
+            didSelectHandler?(app)
+        }
+    }
+
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 10
+        return appGroup?.feed.results.count ?? 0
     }
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellID, for: indexPath)
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellID, for: indexPath) as! AppsRowCell
+        let app = appGroup?.feed.results[indexPath.item]
+        cell.companyLabel.text = app?.artistName
+        cell.nameLabel.text = app?.name
+        cell.imageView.sd_setImage(with: URL(string: app?.artworkUrl100 ?? ""))
         
         return cell
     }
@@ -44,6 +58,6 @@ class AppsHorizontalController : BaseListController, UICollectionViewDelegateFlo
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        return .init(top: 12, left: 16, bottom: 12, right: 16)
+        return .init(top: 12, left: 0, bottom: 12, right: 0)
     }
 }

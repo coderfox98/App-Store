@@ -32,6 +32,7 @@ class AppsSearchController : BaseListController, UICollectionViewDelegateFlowLay
         
         setupSearchBar()
         
+        
         collectionView.addSubview(enterSearchTermLabel)
         enterSearchTermLabel.fillSuperview(padding: .init(top: 100, left: 20, bottom: 0, right: 20))
 //        fetchITunesApps()
@@ -55,7 +56,7 @@ class AppsSearchController : BaseListController, UICollectionViewDelegateFlowLay
         timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false, block: { (_) in
             // Fire the search
             WebService.shared.fetchApps(searchTerm: searchText) { (res, error) in
-                self.appResults = res
+                self.appResults = res?.results ?? []
                 DispatchQueue.main.async {
                     self.collectionView.reloadData()
                 }
@@ -68,12 +69,12 @@ class AppsSearchController : BaseListController, UICollectionViewDelegateFlowLay
     fileprivate var appResults = [Result]()
     
     func fetchITunesApps() {
-        WebService.shared.fetchApps(searchTerm: "twitter") { (results, error) in
+        WebService.shared.fetchApps(searchTerm: "twitter") { (res, error) in
             if let error = error {
                 print("Failed to fetch apps",error)
                 return
             }
-            self.appResults = results
+            self.appResults = res?.results ?? []
             DispatchQueue.main.async {
                 self.collectionView.reloadData()
             }
